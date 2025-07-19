@@ -2,8 +2,9 @@ version: '3.8'
 
 services:
   app:
-    build: .
-    container_name: cleancodegofundamentals
-    tty: true
-    stdin_open: true
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
 
+    command: ["11"]

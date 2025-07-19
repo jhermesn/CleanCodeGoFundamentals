@@ -1,64 +1,52 @@
 package passo3
 
-// package passo3 substitui "Números Mágicos" por constantes e introduz structs
-// para modelar o domínio, melhorando a manutenibilidade e a segurança de tipos.
+import "fmt"
 
-// Constantes nomeadas para evitar "Números Mágicos".
+/*
+Passo 3: Eliminar Números Mágicos.
+Neste passo, os "números mágicos" e "strings mágicas" foram substituídos
+por constantes nomeadas. Isso torna o código mais legível e facilita a
+manutenção, pois os valores ficam centralizados e com um significado claro.
+*/
+
 const (
-	FatorDescontoPremiumPasso3       = 0.90
-	FatorDescontoPlusPasso3          = 0.95
-	CupomDesconto10Passo3            = "DESC10"
-	ValorCupom10Passo3               = 10.0
-	CupomDesconto5Passo3             = "DESC5"
-	ValorCupom5Passo3                = 5.0
-	ValorMinimoParaEnvioGratisPasso3 = 100.0
-	TaxaDeEnvioPasso3                = 5.0
-	TipoUsuarioPremiumPasso3         = "premium"
-	TipoUsuarioPlusPasso3            = "plus"
+	TipoUsuarioPremium = "premium"
+	TipoUsuarioPlus    = "plus"
+
+	DescontoPremium = 0.10
+	DescontoPlus    = 0.20
+
+	Cupom10OFF = "10OFF"
+	Cupom5OFF  = "5OFF"
+
+	ValorDesconto10 = 10.0
+	ValorDesconto5  = 5.0
+
+	ValorMinimoParaTaxa = 100.0
+	TaxaDeEnvio         = 0.05
 )
 
-// Usuario representa um usuário do sistema.
-type UsuarioPasso3 struct {
-	Tipo string
-}
-
-// Produto representa um item do pedido.
-type ProdutoPasso3 struct {
-	Preco float64
-}
-
-// Pedido agrupa os produtos e o cupom de um pedido.
-type PedidoPasso3 struct {
-	Produtos []ProdutoPasso3
-	Cupom    string
-}
-
-// CalcularPrecoPedidoComEstruturas usa constantes e structs para maior clareza.
-func CalcularPrecoPedidoComEstruturasPasso3(pedido PedidoPasso3, usuario UsuarioPasso3) float64 {
+func CalcularPrecoTotal(precos []float64, usuario map[string]string, cupom string) {
 	var total float64
-	// Calcula o subtotal dos produtos.
-	for _, produto := range pedido.Produtos {
-		total += produto.Preco
+	for _, preco := range precos {
+		total += preco
 	}
 
-	// Aplica desconto por tipo de usuário.
-	if usuario.Tipo == TipoUsuarioPremiumPasso3 {
-		total *= FatorDescontoPremiumPasso3
-	} else if usuario.Tipo == TipoUsuarioPlusPasso3 {
-		total *= FatorDescontoPlusPasso3
+	if usuario["tipo"] == TipoUsuarioPremium {
+		total -= total * DescontoPremium
+	} else if usuario["tipo"] == TipoUsuarioPlus {
+		total -= total * DescontoPlus
 	}
 
-	// Aplica cupom de desconto.
-	if pedido.Cupom == CupomDesconto10Passo3 {
-		total -= ValorCupom10Passo3
-	} else if pedido.Cupom == CupomDesconto5Passo3 {
-		total -= ValorCupom5Passo3
+	if cupom == Cupom10OFF {
+		total -= ValorDesconto10
+	} else if cupom == Cupom5OFF {
+		total -= ValorDesconto5
 	}
 
-	// Adiciona taxa de envio.
-	if total < ValorMinimoParaEnvioGratisPasso3 {
-		total += TaxaDeEnvioPasso3
+	if total < ValorMinimoParaTaxa {
+		total += total * TaxaDeEnvio
 	}
 
-	return total
+	fmt.Println("Preço total:", total)
 }

@@ -1,81 +1,68 @@
 package passo4
 
-// package passo4 aplica o Princípio da Responsabilidade Única (SRP).
-//
-// A função de cálculo de preço foi dividida em funções menores e coesas,
-// cada uma com uma única responsabilidade. A função principal agora
-// apenas orquestra as chamadas, tornando o fluxo mais claro e testável.
+import "fmt"
+
+/*
+Passo 4: Introduzir Tipos de Domínio.
+Neste passo, substituímos os tipos de dados genéricos (map, slices de float)
+por estruturas de domínio (structs) como Pedido, Usuario e Produto.
+Isso torna o código mais expressivo, seguro e alinhado aos conceitos
+de negócio, evitando a manipulação de dados primitivos e sem semântica.
+*/
 
 const (
-	FatorDescontoPremiumPasso4       = 0.90
-	FatorDescontoPlusPasso4          = 0.95
-	CupomDesconto10Passo4            = "DESC10"
-	ValorCupom10Passo4               = 10.0
-	CupomDesconto5Passo4             = "DESC5"
-	ValorCupom5Passo4                = 5.0
-	ValorMinimoParaEnvioGratisPasso4 = 100.0
-	TaxaDeEnvioPasso4                = 5.0
-	TipoUsuarioPremiumPasso4         = "premium"
-	TipoUsuarioPlusPasso4            = "plus"
+	TipoUsuarioPremium = "premium"
+	TipoUsuarioPlus    = "plus"
+	Cupom10OFF         = "10OFF"
+	Cupom5OFF          = "5OFF"
 )
 
-type UsuarioPasso4 struct {
-	Tipo string
-}
+const (
+	DescontoPremium     = 0.10
+	DescontoPlus        = 0.20
+	ValorDesconto10     = 10.0
+	ValorDesconto5      = 5.0
+	ValorMinimoParaTaxa = 100.0
+	TaxaDeEnvio         = 0.05
+)
 
-type ProdutoPasso4 struct {
+type Produto struct {
+	Nome  string
 	Preco float64
 }
 
-type PedidoPasso4 struct {
-	Produtos []ProdutoPasso4
+type Usuario struct {
+	Nome string
+	Tipo string
+}
+
+type Pedido struct {
+	Produtos []*Produto
+	Usuario  *Usuario
 	Cupom    string
 }
 
-// CalcularPrecoPedidoRefatoradoPasso4 orquestra as etapas do cálculo de preço.
-func CalcularPrecoPedidoRefatoradoPasso4(pedido PedidoPasso4, usuario UsuarioPasso4) float64 {
-	total := calcularTotalDosProdutosPasso4(pedido.Produtos)
-	total = aplicarDescontoPorTipoUsuarioPasso4(total, usuario)
-	total = aplicarDescontoDeCupomPasso4(total, pedido.Cupom)
-	total = adicionarTaxaDeEnvioPasso4(total)
-	return total
-}
-
-// calcularTotalDosProdutos soma os preços de todos os produtos do pedido.
-func calcularTotalDosProdutosPasso4(produtos []ProdutoPasso4) float64 {
+func CalcularPrecoTotal(pedido *Pedido) {
 	var total float64
-	for _, produto := range produtos {
+	for _, produto := range pedido.Produtos {
 		total += produto.Preco
 	}
-	return total
-}
 
-// aplicarDescontoPorTipoUsuario aplica o desconto com base no tipo de usuário.
-func aplicarDescontoPorTipoUsuarioPasso4(total float64, usuario UsuarioPasso4) float64 {
-	if usuario.Tipo == TipoUsuarioPremiumPasso4 {
-		return total * FatorDescontoPremiumPasso4
+	if pedido.Usuario.Tipo == TipoUsuarioPremium {
+		total -= total * DescontoPremium
+	} else if pedido.Usuario.Tipo == TipoUsuarioPlus {
+		total -= total * DescontoPlus
 	}
-	if usuario.Tipo == TipoUsuarioPlusPasso4 {
-		return total * FatorDescontoPlusPasso4
-	}
-	return total
-}
 
-// aplicarDescontoDeCupom aplica o desconto de um cupom de valor fixo.
-func aplicarDescontoDeCupomPasso4(total float64, cupom string) float64 {
-	if cupom == CupomDesconto10Passo4 {
-		return total - ValorCupom10Passo4
+	if pedido.Cupom == Cupom10OFF {
+		total -= ValorDesconto10
+	} else if pedido.Cupom == Cupom5OFF {
+		total -= ValorDesconto5
 	}
-	if cupom == CupomDesconto5Passo4 {
-		return total - ValorCupom5Passo4
-	}
-	return total
-}
 
-// adicionarTaxaDeEnvio adiciona a taxa se o total for abaixo do mínimo.
-func adicionarTaxaDeEnvioPasso4(total float64) float64 {
-	if total < ValorMinimoParaEnvioGratisPasso4 {
-		return total + TaxaDeEnvioPasso4
+	if total < ValorMinimoParaTaxa {
+		total += total * TaxaDeEnvio
 	}
-	return total
+
+	fmt.Println("Preço total:", total)
 }
